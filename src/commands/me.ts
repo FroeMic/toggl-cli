@@ -105,7 +105,7 @@ export function createMeCommand(): Command {
         const quota = await meApi.getQuota();
 
         if (options.format === 'table') {
-          const data = Object.entries(quota).map(([key, value]) => ({
+          const data = Object.entries(quota as Record<string, unknown>).map(([key, value]) => ({
             Field: key,
             Value: typeof value === 'object' ? JSON.stringify(value) : String(value),
           }));
