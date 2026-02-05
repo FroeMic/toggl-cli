@@ -58,6 +58,22 @@ describe('Time Entries Integration', () => {
     expect(Array.isArray(entries)).toBe(true);
   });
 
+  it.skipIf(!process.env.TOGGL_API_TOKEN)('lists time entries with only start-date (end-date defaults to now)', async () => {
+    const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+    const entries = await timeEntriesApi.list({ startDate });
+
+    expect(Array.isArray(entries)).toBe(true);
+  });
+
+  it.skipIf(!process.env.TOGGL_API_TOKEN)('throws error when only end-date is provided', async () => {
+    const endDate = new Date().toISOString();
+
+    await expect(timeEntriesApi.list({ endDate })).rejects.toThrow(
+      'end-date requires start-date'
+    );
+  });
+
   it.skipIf(!process.env.TOGGL_API_TOKEN)('gets current time entry (may be null)', async () => {
     const current = await timeEntriesApi.getCurrent();
 

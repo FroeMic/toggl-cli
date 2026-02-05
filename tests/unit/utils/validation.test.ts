@@ -6,6 +6,7 @@ import {
   parsePositiveInteger,
   isISO8601Date,
   parseISO8601Date,
+  validateDateRange,
 } from '../../../src/utils/validation';
 
 describe('Validation Utils', () => {
@@ -95,6 +96,67 @@ describe('Validation Utils', () => {
     it('throws error for invalid date', () => {
       expect(() => parseISO8601Date('not-a-date', 'startDate')).toThrow(
         'startDate must be a valid ISO 8601 date'
+      );
+    });
+  });
+
+  describe('validateDateRange', () => {
+    it('returns null when neither date is provided', () => {
+      const result = validateDateRange();
+      expect(result).toBeNull();
+    });
+
+    it('returns null when both dates are undefined', () => {
+      const result = validateDateRange(undefined, undefined);
+      expect(result).toBeNull();
+    });
+
+    it('returns both dates when both are provided', () => {
+      const result = validateDateRange('2024-01-01', '2024-01-31');
+      expect(result).not.toBeNull();
+      expect(result?.startDate).toMatch(/^2024-01-01/);
+      expect(result?.endDate).toMatch(/^2024-01-31/);
+    });
+
+    it('defaults end-date to now when only start-date provided', () => {
+      const beforeCall = new Date();
+      const result = validateDateRange('2024-01-01');
+      const afterCall = new Date();
+
+      expect(result).not.toBeNull();
+      expect(result?.startDate).toMatch(/^2024-01-01/);
+
+      const endDate = new Date(result!.endDate);
+      expect(endDate.getTime()).toBeGreaterThanOrEqual(beforeCall.getTime());
+      expect(endDate.getTime()).toBeLessThanOrEqual(afterCall.getTime() + 1000);
+    });
+
+    it('throws error when only end-date is provided', () => {
+      expect(() => validateDateRange(undefined, '2024-01-31')).toThrow(
+        'end-date requires start-date. The Toggl API requires both dates when filtering.'
+      );
+    });
+
+    it('throws error when start-date is after end-date', () => {
+      expect(() => validateDateRange('2024-01-31', '2024-01-01')).toThrow(
+        'start-date must be before end-date'
+      );
+    });
+
+    it('accepts same date for start and end', () => {
+      const result = validateDateRange('2024-01-15', '2024-01-15');
+      expect(result).not.toBeNull();
+    });
+
+    it('throws error for invalid start-date', () => {
+      expect(() => validateDateRange('invalid', '2024-01-31')).toThrow(
+        'start-date must be a valid ISO 8601 date'
+      );
+    });
+
+    it('throws error for invalid end-date', () => {
+      expect(() => validateDateRange('2024-01-01', 'invalid')).toThrow(
+        'end-date must be a valid ISO 8601 date'
       );
     });
   });

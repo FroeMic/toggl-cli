@@ -91,6 +91,9 @@ toggl te list --format table
 # List entries in date range
 toggl te list --start-date 2024-01-01 --end-date 2024-01-31
 
+# List entries from start date to now (end-date auto-defaults)
+toggl te list --start-date 2024-01-01
+
 # Create a completed entry
 toggl te create --start "2024-01-15T09:00:00Z" --duration 3600 --description "Meeting"
 

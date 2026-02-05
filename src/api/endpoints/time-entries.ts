@@ -1,6 +1,6 @@
 import { TogglClient } from '../client';
 import { TimeEntrySchema, TimeEntry, TimeEntryCreate } from '../schemas';
-import { validate } from '../../utils/validation';
+import { validate, validateDateRange } from '../../utils/validation';
 import { z } from 'zod';
 
 export interface ListTimeEntriesOptions {
@@ -15,17 +15,20 @@ export class TimeEntriesEndpoints {
   async list(options?: ListTimeEntriesOptions): Promise<TimeEntry[]> {
     const params: Record<string, unknown> = {};
 
-    if (options?.startDate) {
-      params.start_date = options.startDate;
+    const dateRange = validateDateRange(options?.startDate, options?.endDate);
+    if (dateRange) {
+      params.start_date = dateRange.startDate;
+      params.end_date = dateRange.endDate;
     }
-    if (options?.endDate) {
-      params.end_date = options.endDate;
-    }
+
     if (options?.meta) {
       params.meta = true;
     }
 
-    const response = await this.client.get<unknown[]>('/me/time_entries', params);
+    const response = await this.client.get<unknown[]>(
+      '/me/time_entries',
+      params
+    );
     return validate(z.array(TimeEntrySchema), response);
   }
 
@@ -106,6 +109,8 @@ export class TimeEntriesEndpoints {
   }
 
   async delete(workspaceId: number, timeEntryId: number): Promise<void> {
-    await this.client.delete(`/workspaces/${workspaceId}/time_entries/${timeEntryId}`);
+    await this.client.delete(
+      `/workspaces/${workspaceId}/time_entries/${timeEntryId}`
+    );
   }
 }

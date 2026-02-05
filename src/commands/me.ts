@@ -102,16 +102,18 @@ export function createMeCommand(): Command {
         const client = new TogglClient(options.apiToken);
         const meApi = new MeEndpoints(client);
 
-        const quota = await meApi.getQuota();
+        const quotas = await meApi.getQuota();
 
         if (options.format === 'table') {
-          const data = Object.entries(quota as Record<string, unknown>).map(([key, value]) => ({
-            Field: key,
-            Value: typeof value === 'object' ? JSON.stringify(value) : String(value),
+          const data = quotas.map((q) => ({
+            'Organization ID': q.organization_id,
+            Remaining: q.remaining,
+            Total: q.total,
+            'Resets In': `${Math.floor(q.resets_in_secs / 60)} min`,
           }));
           console.log(formatGenericTable(data));
         } else {
-          console.log(formatJson(quota));
+          console.log(formatJson(quotas));
         }
       } catch (error) {
         if (error instanceof Error) {

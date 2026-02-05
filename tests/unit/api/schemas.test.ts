@@ -7,6 +7,8 @@ import {
   ClientSchema,
   TagSchema,
   TaskSchema,
+  OrganizationQuotaSchema,
+  QuotaResponseSchema,
 } from '../../../src/api/schemas';
 
 describe('Schemas', () => {
@@ -217,6 +219,61 @@ describe('Schemas', () => {
       const result = TaskSchema.parse(task);
       expect(result.estimated_seconds).toBe(3600);
       expect(result.tracked_seconds).toBe(1800);
+    });
+  });
+
+  describe('OrganizationQuotaSchema', () => {
+    it('validates quota object', () => {
+      const quota = {
+        remaining: 100,
+        total: 600,
+        resets_in_secs: 3600,
+        organization_id: 12345,
+      };
+
+      const result = OrganizationQuotaSchema.parse(quota);
+      expect(result.remaining).toBe(100);
+      expect(result.total).toBe(600);
+      expect(result.resets_in_secs).toBe(3600);
+      expect(result.organization_id).toBe(12345);
+    });
+
+    it('rejects quota with missing fields', () => {
+      const quota = {
+        remaining: 100,
+        // missing total, resets_in_secs, organization_id
+      };
+
+      expect(() => OrganizationQuotaSchema.parse(quota)).toThrow();
+    });
+  });
+
+  describe('QuotaResponseSchema', () => {
+    it('validates array of quota objects', () => {
+      const quotas = [
+        {
+          remaining: 100,
+          total: 600,
+          resets_in_secs: 3600,
+          organization_id: 12345,
+        },
+        {
+          remaining: 50,
+          total: 300,
+          resets_in_secs: 1800,
+          organization_id: 67890,
+        },
+      ];
+
+      const result = QuotaResponseSchema.parse(quotas);
+      expect(result).toHaveLength(2);
+      expect(result[0].organization_id).toBe(12345);
+      expect(result[1].organization_id).toBe(67890);
+    });
+
+    it('validates empty array', () => {
+      const result = QuotaResponseSchema.parse([]);
+      expect(result).toHaveLength(0);
     });
   });
 });

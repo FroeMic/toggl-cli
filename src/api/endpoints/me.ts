@@ -1,5 +1,12 @@
 import { TogglClient } from '../client';
-import { UserSchema, UserPreferencesSchema, User, UserPreferences } from '../schemas';
+import {
+  UserSchema,
+  UserPreferencesSchema,
+  QuotaResponseSchema,
+  User,
+  UserPreferences,
+  QuotaResponse,
+} from '../schemas';
 import { validate } from '../../utils/validation';
 
 export class MeEndpoints {
@@ -31,10 +38,8 @@ export class MeEndpoints {
     return validate(UserPreferencesSchema, response);
   }
 
-  async getQuota(): Promise<unknown> {
-    // The quota endpoint returns various rate limit information
-    // Response format may vary
-    const response = await this.client.get<unknown>('/me/logged');
-    return response;
+  async getQuota(): Promise<QuotaResponse> {
+    const response = await this.client.get<unknown>('/me/quota');
+    return validate(QuotaResponseSchema, response);
   }
 }

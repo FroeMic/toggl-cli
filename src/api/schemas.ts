@@ -325,12 +325,26 @@ export const GroupCreateSchema = z.object({
 
 export type GroupCreate = z.infer<typeof GroupCreateSchema>;
 
-// API Quota schema
+// API Quota schema - rate limit info per organization
+export const OrganizationQuotaSchema = z.object({
+  remaining: z.number(),
+  total: z.number(),
+  resets_in_secs: z.number(),
+  organization_id: z.number(),
+});
+
+export type OrganizationQuota = z.infer<typeof OrganizationQuotaSchema>;
+
+export const QuotaResponseSchema = z.array(OrganizationQuotaSchema);
+export type QuotaResponse = z.infer<typeof QuotaResponseSchema>;
+
+// Deprecated - keep for backwards compat
+/** @deprecated Use OrganizationQuotaSchema instead */
 export const QuotaSchema = z.object({
   requests_made: z.number().optional(),
   requests_allowed: z.number().optional(),
   requests_remaining: z.number().optional(),
   reset_at: TimestampSchema.optional(),
 });
-
+/** @deprecated Use OrganizationQuota instead */
 export type Quota = z.infer<typeof QuotaSchema>;

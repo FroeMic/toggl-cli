@@ -38,8 +38,11 @@ export function createTimeEntryCommand(): Command {
     .description('List time entries')
     .option('--api-token <token>', 'Toggl API token')
     .option('--format <format>', 'Output format (json|table|csv)', 'json')
-    .option('--start-date <date>', 'Start date (ISO 8601)')
-    .option('--end-date <date>', 'End date (ISO 8601)')
+    .option(
+      '--start-date <date>',
+      'Start date (ISO 8601). If alone, end-date defaults to now.'
+    )
+    .option('--end-date <date>', 'End date (ISO 8601). Requires start-date.')
     .action(async (options) => {
       try {
         const client = new TogglClient(options.apiToken);
@@ -143,7 +146,9 @@ export function createTimeEntryCommand(): Command {
 
         const entry = await timeEntriesApi.start(workspaceId, {
           description: options.description,
-          projectId: options.project ? parseInt(options.project, 10) : undefined,
+          projectId: options.project
+            ? parseInt(options.project, 10)
+            : undefined,
           taskId: options.task ? parseInt(options.task, 10) : undefined,
           tags: options.tags?.split(',').map((t: string) => t.trim()),
           billable: options.billable,
@@ -221,7 +226,9 @@ export function createTimeEntryCommand(): Command {
           start: new Date(options.start).toISOString(),
           duration: parseInt(options.duration, 10),
           description: options.description,
-          project_id: options.project ? parseInt(options.project, 10) : undefined,
+          project_id: options.project
+            ? parseInt(options.project, 10)
+            : undefined,
           task_id: options.task ? parseInt(options.task, 10) : undefined,
           tags: options.tags?.split(',').map((t: string) => t.trim()),
           billable: options.billable,
@@ -262,13 +269,24 @@ export function createTimeEntryCommand(): Command {
         const workspaceId = await getWorkspaceId(client, options.workspace);
 
         const updateData: Record<string, unknown> = {};
-        if (options.description !== undefined) updateData.description = options.description;
-        if (options.project !== undefined) updateData.project_id = parseInt(options.project, 10);
-        if (options.task !== undefined) updateData.task_id = parseInt(options.task, 10);
-        if (options.tags !== undefined) updateData.tags = options.tags.split(',').map((t: string) => t.trim());
-        if (options.billable !== undefined) updateData.billable = options.billable;
+        if (options.description !== undefined)
+          updateData.description = options.description;
+        if (options.project !== undefined)
+          updateData.project_id = parseInt(options.project, 10);
+        if (options.task !== undefined)
+          updateData.task_id = parseInt(options.task, 10);
+        if (options.tags !== undefined)
+          updateData.tags = options.tags
+            .split(',')
+            .map((t: string) => t.trim());
+        if (options.billable !== undefined)
+          updateData.billable = options.billable;
 
-        const entry = await timeEntriesApi.update(workspaceId, parseInt(id, 10), updateData);
+        const entry = await timeEntriesApi.update(
+          workspaceId,
+          parseInt(id, 10),
+          updateData
+        );
 
         if (options.format === 'table') {
           console.log(formatTimeEntryTable(entry));

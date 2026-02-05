@@ -41,9 +41,15 @@ describe('Me Integration', () => {
   });
 
   it.skipIf(!process.env.TOGGL_API_TOKEN)('gets quota information', async () => {
-    const quota = await meApi.getQuota();
+    const quotas = await meApi.getQuota();
 
-    // Quota can be an object or string depending on API version
-    expect(quota).toBeDefined();
+    expect(Array.isArray(quotas)).toBe(true);
+    if (quotas.length > 0) {
+      const quota = quotas[0];
+      expect(typeof quota.remaining).toBe('number');
+      expect(typeof quota.total).toBe('number');
+      expect(typeof quota.resets_in_secs).toBe('number');
+      expect(typeof quota.organization_id).toBe('number');
+    }
   });
 });
