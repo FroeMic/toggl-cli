@@ -106,7 +106,7 @@ export function createMeCommand(): Command {
 
         if (options.format === 'table') {
           const data = quotas.map((q) => ({
-            'Organization ID': q.organization_id,
+            'Organization ID': q.organization_id ?? '-',
             Remaining: q.remaining,
             Total: q.total,
             'Resets In': `${Math.floor(q.resets_in_secs / 60)} min`,

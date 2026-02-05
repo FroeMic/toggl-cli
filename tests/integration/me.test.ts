@@ -49,7 +49,8 @@ describe('Me Integration', () => {
       expect(typeof quota.remaining).toBe('number');
       expect(typeof quota.total).toBe('number');
       expect(typeof quota.resets_in_secs).toBe('number');
-      expect(typeof quota.organization_id).toBe('number');
+      // organization_id can be number or null
+      expect(quota.organization_id === null || typeof quota.organization_id === 'number').toBe(true);
     }
   });
 });

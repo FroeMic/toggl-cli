@@ -238,6 +238,18 @@ describe('Schemas', () => {
       expect(result.organization_id).toBe(12345);
     });
 
+    it('allows null organization_id', () => {
+      const quota = {
+        remaining: 100,
+        total: 600,
+        resets_in_secs: 3600,
+        organization_id: null,
+      };
+
+      const result = OrganizationQuotaSchema.parse(quota);
+      expect(result.organization_id).toBeNull();
+    });
+
     it('rejects quota with missing fields', () => {
       const quota = {
         remaining: 100,

@@ -330,7 +330,7 @@ export const OrganizationQuotaSchema = z.object({
   remaining: z.number(),
   total: z.number(),
   resets_in_secs: z.number(),
-  organization_id: z.number(),
+  organization_id: z.number().nullable(),
 });
 
 export type OrganizationQuota = z.infer<typeof OrganizationQuotaSchema>;
